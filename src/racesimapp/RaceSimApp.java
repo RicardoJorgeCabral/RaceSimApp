@@ -17,6 +17,40 @@ import racesimapp.model.RaceResult;
  */
 public class RaceSimApp {
 
+    private static void test1() throws Exception {
+        List<Pilot> pilots = new ArrayList<Pilot>();
+        Map<Pilot,Integer> finalResults = new HashMap<>();
+        for (int i=1; i<=20; i++) {
+            Pilot p = new Pilot();
+            p.setNumber(i);
+            p.setName("Pilot " + String.format("%02d", i));
+            Random rd = new Random();
+            p.setFactor(rd.nextFloat());
+            pilots.add(p);
+            finalResults.put(p, 0);
+        }
+        
+        RacesProcess process = new RacesProcess();
+        process.setPilots(pilots);
+        process.setTotalRaces(10);
+        /*List<RaceResult> results = process.process();
+        
+        System.out.println("PILOT\t\tR1\tR2\tR3\tR4\tR5\tR6\tR7\tR8\tR9\tR10\tTotal");
+        System.out.println("==================================================================================================================================================");
+        for (Pilot p : pilots) {
+            System.out.print(p.getName() + "\t");
+            for (int race=1; race<=10; race++) {
+                TreeMap<Integer,Pilot> raceResult = new TreeMap<Integer,Pilot>();
+                for (RaceResult singleresult : results) {
+                    if ((singleresult.getRaceNumber() == race) && (singleresult.getPilot().equals(p))) {
+                        raceResult.put(singleresult.getPlace(), singleresult.getPilot());
+                    }
+                }
+            }
+        }*/
+        
+    }
+    
     private static void test() throws Exception {
         List<Pilot> pilots = new ArrayList<Pilot>();
         Map<Pilot,Integer> finalResults = new HashMap<>();
@@ -37,14 +71,17 @@ public class RaceSimApp {
         RacesProcess process = new RacesProcess();
         process.setPilots(pilots);
         process.setTotalRaces(10);
-        List<RaceResult> results = process.process();
+        Map<Integer,Map> results = process.process();
         for (int race =1; race<=10; race++) {
             TreeMap<Integer,Pilot> raceResult = new TreeMap<Integer,Pilot>();
-            for (RaceResult singleresult : results) {
-                if (singleresult.getRaceNumber() == race) {
-                    raceResult.put(singleresult.getPlace(), singleresult.getPilot());
-                }
+            Map<Pilot,Integer> singleResult = results.get(race);
+            Set setR = singleResult.entrySet();
+            Iterator itR = setR.iterator();
+            while (itR.hasNext()) {
+                Map.Entry mentry = (Map.Entry)itR.next();
+                raceResult.put((Integer) mentry.getValue(), (Pilot) mentry.getKey());
             }
+
             Set set = raceResult.entrySet();
             Iterator it = set.iterator();
             //System.out.println("  R A C E   R E S U L T S   F O R   R A C E   " + race);
@@ -70,6 +107,7 @@ public class RaceSimApp {
                 finalResults.put(pilot, totalP);
             }
         }
+        /*
         Map<Pilot,Integer> sortedFinalResults = finalResults
                 .entrySet()
                 .stream()
@@ -80,13 +118,28 @@ public class RaceSimApp {
                 
         Set set = sortedFinalResults.entrySet();
         Iterator it = set.iterator();
-        System.out.println("F I N A L    S T A N D I N G S");
-        System.out.println("==============================");
+        //System.out.println("F I N A L    S T A N D I N G S");
+        //System.out.println("==============================");
         while (it.hasNext()) {
             Map.Entry mentry = (Map.Entry)it.next();
             Pilot p = (Pilot) mentry.getKey();
             Integer totalPoints = (Integer) mentry.getValue();
-            System.out.println(p.getName() + "\t" + totalPoints.toString());
+            //System.out.println(p.getName() + "\t" + totalPoints.toString());
+        }
+        */
+        System.out.println("\n\nPILOT\t\tR1\tR2\tR3\tR4\tR5\tR6\tR7\tR8\tR9\tR10\tTotal");
+        System.out.println("==================================================================================================================================================");
+        for (Pilot p : pilots) {
+            System.out.print(p.getName() + "\t");
+            for (int race=1; race<=10; race++) {  
+                Map<Pilot,Integer> singleResult = results.get(race);
+                Integer place = singleResult.get(p);                
+                System.out.print(place.toString() + "\t");
+                
+            }
+            Integer totalPoints = finalResults.get(p);
+            System.out.println(totalPoints.toString());
+            //System.out.println();
         }
     }
     /**

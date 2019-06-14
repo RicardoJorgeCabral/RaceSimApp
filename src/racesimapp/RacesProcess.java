@@ -13,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -25,19 +26,16 @@ import java.util.TreeMap;
 public class RacesProcess {
     
     private List<Pilot> pilots;
-    private List<RaceResult> races;
     private Integer totalRaces;
 
     public RacesProcess() {
         this.pilots = null;
-        this.races = null;
         this.totalRaces = null;
     }
 
     public RacesProcess(List<Pilot> pilots, Integer totalRaces) {
         this.pilots = pilots;
         this.totalRaces = totalRaces;
-        this.races = null;
     }
 
     public List<Pilot> getPilots() {
@@ -56,28 +54,30 @@ public class RacesProcess {
         this.totalRaces = totalRaces;
     }
     
-    public List<RaceResult> process() throws Exception {
-        this.races = new ArrayList<RaceResult>();
+    public Map<Integer,Map> process() throws Exception {
+        Map<Integer,Map> finalResults = new HashMap<Integer,Map>();
         for (int raceId=1; raceId<=this.totalRaces; raceId++) {
             TreeMap<Float, Pilot> res = new TreeMap<Float, Pilot>(Collections.reverseOrder());
             for (Pilot p : this.pilots) {
-                Float rank = this.getRandomNumber() / p.getFactor();
+                Float rank = this.getRandomNumber() * p.getFactor();
+                while (res.containsKey(rank)) rank = this.getRandomNumber() * p.getFactor();
                 res.put(rank, p);
-            }
-            Set set = res.entrySet();
-            Iterator it = set.iterator(); 
+            }            
+            
+            Set entries = res.entrySet();
+            Iterator it = entries.iterator();
+            Map<Pilot,Integer> raceResult = new HashMap<>();
             int position = 1;
             while (it.hasNext()) {
-               Map.Entry mentry = (Map.Entry)it.next();
-               RaceResult raceresult = new RaceResult();
-               raceresult.setRaceNumber(raceId);
-               raceresult.setPilot((Pilot) mentry.getValue());
-               raceresult.setPlace(position);
-               this.races.add(raceresult);
-               position++;
+                Map.Entry mentry = (Map.Entry)it.next();
+                //Float rank = (Float) mentry.getKey();               
+                Pilot p = (Pilot) mentry.getValue();
+                raceResult.put(p, position);                              
+                position++;
             }
+            finalResults.put(raceId, raceResult);
         }
-        return this.races;
+        return finalResults;
     }
     
     private Integer getRandomNumber() throws Exception {
